@@ -30,7 +30,7 @@ void compress(char *infn, char *outfn)
     for (int i = 0; i < size; ) {
         uint8_t count = 1;
         uint8_t byte = memory[i];
-        while (memory[++i] == byte)
+        while (memory[++i] == byte && count <= 255)
             count++;
         fputc(count, outf);
         fputc(byte, outf);
