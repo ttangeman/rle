@@ -1,5 +1,8 @@
 # rle
-A Crappy RLE implementation
+A crappy RLE implementation
+
+# Dependencies
+Any C compiler should work, but it was only tested in GCC.
 
 # Install
 Simply run the build.sh file in the repository or copy the gcc command in it to compile the program.
