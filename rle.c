@@ -86,13 +86,12 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    char *infn = argv[2];
+    char *outfn = argv[3];
+
     if (strcmp(argv[1], "compress") == 0) {
-        char *infn = argv[2];
-        char *outfn = argv[3];
         compress(infn, outfn);
     } else if (strcmp(argv[1], "decompress") == 0) {
-        char *infn = argv[2];
-        char *outfn = argv[3];
         decompress(infn, outfn);
     } else {
         fprintf(stderr, "No valid option detected.\n");
