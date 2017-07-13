@@ -26,6 +26,7 @@ void compress(char *infn, char *outfn)
     FILE *outf = fopen(outfn, "w");
     if (!outf) {
         fprintf(stderr, "Unable to open output file!\n");
+        free(memory);
         exit(2);
     }
 
@@ -65,6 +66,7 @@ void decompress(char *infn, char *outfn)
     FILE *outf = fopen(outfn, "w");
     if (!outf) {
         fprintf(stderr, "Unable to open output file!\n");
+        free(memory);
         exit(2);
     }
 
