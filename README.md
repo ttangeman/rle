@@ -1,5 +1,5 @@
 # rle
-A crappy RLE implementation
+A simple RLE (Run Length Encoding) implementation
 
 # Dependencies
 Any C compiler should work, but it was only tested in GCC.
