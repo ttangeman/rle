@@ -8,13 +8,9 @@ void compress(char *infn, char *outfn)
     uint8_t *memory;
     size_t size;
     FILE *inf = fopen(infn, "r");
-    FILE *outf = fopen(outfn, "w");
 
     if (!inf) {
         fprintf(stderr, "Unable to open input file!\n");
-        exit(2);
-    } else if (!outf) {
-        fprintf(stderr, "Unable to open output file!\n");
         exit(2);
     }
 
@@ -27,10 +23,16 @@ void compress(char *infn, char *outfn)
     fread(memory, 1, size, inf);
     fclose(inf);
 
+    FILE *outf = fopen(outfn, "w");
+    if (!outf) {
+        fprintf(stderr, "Unable to open output file!\n");
+        exit(2);
+    }
+
     for (int i = 0; i < size; ) {
         uint8_t count = 1;
         uint8_t byte = memory[i];
-        while (memory[++i] == byte && count <= 255)
+        while (memory[++i] == byte && count < 255)
             count++;
         fputc(count, outf);
         fputc(byte, outf);
@@ -45,13 +47,9 @@ void decompress(char *infn, char *outfn)
     uint8_t *memory;
     size_t size;
     FILE *inf = fopen(infn, "r");
-    FILE *outf = fopen(outfn, "w");
 
     if (!inf) {
         fprintf(stderr, "Unable to open input file!\n");
-        exit(2);
-    } else if (!outf) {
-        fprintf(stderr, "Unable to open output file!\n");
         exit(2);
     }
 
@@ -63,6 +61,12 @@ void decompress(char *infn, char *outfn)
 
     fread(memory, 1, size, inf);
     fclose(inf);
+
+    FILE *outf = fopen(outfn, "w");
+    if (!outf) {
+        fprintf(stderr, "Unable to open output file!\n");
+        exit(2);
+    }
 
     for (int i = 0, j = 1; i < size && j < size; i += 2, j += 2) {
         uint8_t count = memory[i];
