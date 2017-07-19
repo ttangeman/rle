@@ -3,32 +3,43 @@
 #include <stdint.h>
 #include <string.h>
 
-void compress(char *infn, char *outfn)
+typedef struct
 {
-    uint8_t *memory;
     size_t size;
-    FILE *inf = fopen(infn, "r");
+    uint8_t *memory;
+} mm_file;
 
-    if (!inf) {
-        fprintf(stderr, "Unable to open input file!\n");
+mm_file mmap_file(FILE *f)
+{
+    if (!f) {
+        fprintf(stderr, "Unable to open file!\n");
+        fclose(f);
         exit(2);
     }
 
-    fseek(inf, 0, SEEK_END);
-    size = ftell(inf);
-    rewind(inf);
+    mm_file result = {0};
 
-    memory = malloc(size);
+    fseek(f, 0, SEEK_END);
+    result.size = ftell(f);
+    rewind(f);
 
-    fread(memory, 1, size, inf);
-    fclose(inf);
+    result.memory = (uint8_t *) malloc(result.size);
+
+    fread(result.memory, 1, result.size, f);
+    fclose(f);
+
+    return(result);
+}
+
+void encode(char *infn, char *outfn)
+{
+    FILE *inf = fopen(infn, "r");
+    mm_file m = mmap_file(inf);
+
+    size_t size = m.size;
+    uint8_t *memory = m.memory;
 
     FILE *outf = fopen(outfn, "w");
-    if (!outf) {
-        fprintf(stderr, "Unable to open output file!\n");
-        free(memory);
-        exit(2);
-    }
 
     for (int i = 0; i < size; ) {
         uint8_t count = 1;
@@ -40,46 +51,35 @@ void compress(char *infn, char *outfn)
     }
 
     fclose(outf);
-    free(memory);
+    free(m.memory);
 }
 
-void decompress(char *infn, char *outfn)
+void decode(char *infn, char *outfn)
 {
-    uint8_t *memory;
-    size_t size;
     FILE *inf = fopen(infn, "r");
+    mm_file m = mmap_file(inf);
 
-    if (!inf) {
-        fprintf(stderr, "Unable to open input file!\n");
-        exit(2);
-    }
-
-    fseek(inf, 0, SEEK_END);
-    size = ftell(inf);
-    rewind(inf);
-
-    memory = malloc(size);
-
-    fread(memory, 1, size, inf);
-    fclose(inf);
+    size_t size = m.size;
+    uint8_t *memory = m.memory;
+    uint8_t *outmem = malloc(255);
+    uint8_t *base = outmem;
 
     FILE *outf = fopen(outfn, "w");
-    if (!outf) {
-        fprintf(stderr, "Unable to open output file!\n");
-        free(memory);
-        exit(2);
-    }
 
     for (int i = 0, j = 1; i < size && j < size; i += 2, j += 2) {
         uint8_t count = memory[i];
         uint8_t byte = memory[j];
 
         for (int k = 0; k < count; k++)
-            fputc(byte, outf);
+            *(outmem++) = byte;
+
+        fwrite(outmem, 1, count, outf);
+        outmem = base;
     }
 
     fclose(outf);
-    free(memory);
+    free(m.memory);
+    free(outmem);
 }
 
 int main(int argc, char **argv)
@@ -87,18 +87,18 @@ int main(int argc, char **argv)
     if (argc != 4) {
         printf("Usage: %s <OPTION> <INPUT> <OUTPUT>\n", argv[0]);
         printf("Options:\n");
-        printf("\tcompress\n");
-        printf("\tdecompress\n");
+        printf("\tencode\n");
+        printf("\tdecode\n");
         exit(1);
     }
 
     char *infn = argv[2];
     char *outfn = argv[3];
 
-    if (strcmp(argv[1], "compress") == 0) {
-        compress(infn, outfn);
-    } else if (strcmp(argv[1], "decompress") == 0) {
-        decompress(infn, outfn);
+    if (strcmp(argv[1], "encode") == 0) {
+        encode(infn, outfn);
+    } else if (strcmp(argv[1], "decode") == 0) {
+        decode(infn, outfn);
     } else {
         fprintf(stderr, "No valid option detected.\n");
         exit(1);
