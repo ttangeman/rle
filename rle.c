@@ -69,10 +69,7 @@ void decode(char *infn, char *outfn)
     for (int i = 0, j = 1; i < size && j < size; i += 2, j += 2) {
         uint8_t count = memory[i];
         uint8_t byte = memory[j];
-
-        for (int k = 0; k < count; k++)
-            *(outmem++) = byte;
-
+        memset(outmem, byte, count);
         fwrite(outmem, 1, count, outf);
         outmem = base;
     }
@@ -85,7 +82,7 @@ void decode(char *infn, char *outfn)
 int main(int argc, char **argv)
 {
     if (argc != 4) {
-        printf("Usage: %s <OPTION> <INPUT> <OUTPUT>\n", argv[0]);
+        printf("Usage: %s [OPTION] [INPUT] [OUTPUT]\n", argv[0]);
         printf("Options:\n");
         printf("\tencode\n");
         printf("\tdecode\n");
