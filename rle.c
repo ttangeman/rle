@@ -92,9 +92,9 @@ int main(int argc, char **argv)
     char *infn = argv[2];
     char *outfn = argv[3];
 
-    if (strcmp(argv[1], "encode") == 0) {
+    if (strncmp(argv[1], "encode", sizeof(strlen("encode"))) == 0) {
         encode(infn, outfn);
-    } else if (strcmp(argv[1], "decode") == 0) {
+    } else if (strncmp(argv[1], "decode", sizeof(strlen("decode"))) == 0) {
         decode(infn, outfn);
     } else {
         fprintf(stderr, "No valid option detected.\n");
